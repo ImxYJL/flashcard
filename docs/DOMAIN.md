@@ -15,7 +15,6 @@
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
 | id | uuid (pk) | |
-| user_id | uuid (fk → auth.users.id) | RLS 매칭용, 단일 소유자 |
 | before | text | 빈칸 앞 문장 조각 |
 | phrase | text | 빈칸 처리할 표현 |
 | after | text | 빈칸 뒤 문장 조각 |
@@ -29,6 +28,8 @@
 | **[v2]** status | text (default `'active'`) | `'active'` \| `'graduated'`. 졸업 기능과 함께 도입 |
 
 원문은 `before + '[' + phrase + ']' + after` 로 언제든 재조립할 수 있다(수정 화면 등).
+
+> `user_id` 컬럼은 두지 않는다 — 고정 UID RLS는 `auth.uid()`를 소유자 UID 상수와 비교하므로 `user_id` 매칭이 불필요(단일 사용자라 중복). `category`도 DB check를 걸지 않는다(새 분류 추가 시 무마이그레이션 유지, 검증은 앱 TS 상수).
 
 ### review_events — **[v2, 잔디와 함께 도입]**
 
