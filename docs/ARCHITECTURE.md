@@ -6,7 +6,7 @@
 
 - **Next.js (App Router)** — 전 라우트 클라이언트 컴포넌트(`'use client'`), SSR 미사용
 - **TypeScript + Tailwind CSS v4** (CSS 기반 설정, `src/app/globals.css`의 `@theme`/토큰)
-- **Supabase** (`@supabase/supabase-js` + `@supabase/ssr`) — Postgres + Auth
+- **Supabase** (`@supabase/supabase-js`) — Postgres + Auth. 전 클라이언트라 브라우저 클라이언트만 사용(localStorage 세션). SSR 붙이면 그때 `@supabase/ssr` + `proxy.ts` 도입
 - **React Query** (`@tanstack/react-query`) — 서버 상태
 - **react-hook-form** — 폼 (검증이 가벼워 zod는 안 씀; `register` + 인라인 룰)
 - **shadcn/ui** (radix-nova 스타일, radix + tailwind) — 컴포넌트를 `src/components/ui/`로 복사해 소유·restyle. `cn` 유틸(`src/lib/utils.ts`), 아이콘은 lucide
@@ -30,6 +30,13 @@ create policy "owner only"
 ```
 
 범용 멀티테넌트 정책(`auth.uid() = user_id`)이 아니라, 실제로 단일 사용자 앱이므로 소유자 UID 고정 방식으로 간다. 모든 테이블에 동일 정책을 적용한다.
+
+### 클라이언트 구현
+
+- `src/lib/supabase/client.ts` — `createClient`(supabase-js) 브라우저 싱글턴. `persistSession`(localStorage) + `detectSessionInUrl`로 OAuth 복귀를 자동 처리(콜백 라우트·proxy 불필요).
+- `src/lib/supabase/auth.ts` — `signInWithGoogle()`(redirectTo `/`), `signOut()`.
+- 환경 변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (공개값, `.env.local` / 템플릿은 `.env.example`).
+- **소유자 UID 확보 절차**: 앱에서 구글 로그인 1회 → 홈 화면에 표시되는 `user.id`(또는 Supabase 대시보드 Users)를 복사 → RLS 정책의 `OWNER_UUID_HERE`에 넣는다.
 
 ## 데이터 접근 아키텍처
 
