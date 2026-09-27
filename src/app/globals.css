@@ -90,10 +90,10 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* 카드 액센트 팔레트 (파스텔 4색) — pickCardColor가 이 중에서 고른다 */
-  --pastel-sage: #bcd7b3;
-  --pastel-blue: #b9cfe9;
-  --pastel-pink: #f3ccd7;
-  --pastel-lavender: #cec3ec;
+  --pastel-sage: #e4efdf;
+  --pastel-blue: #e2ebf7;
+  --pastel-pink: #fbe8ee;
+  --pastel-lavender: #ebe5f8;
   /* 브랜드 포인트 (알약 배지·dot 등) */
   --brand: #f26b21;
   --brand-foreground: #ffffff;

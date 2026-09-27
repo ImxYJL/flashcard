@@ -21,7 +21,7 @@ export const CardSurface = ({ color, className, children }: CardSurfaceProps) =>
   return (
     <div
       className={cn(
-        "rounded-3xl p-6 text-foreground shadow-sm",
+        "rounded-3xl border border-black/5 p-7 text-foreground shadow-sm",
         CARD_COLOR_CLASS[picked],
         className,
       )}

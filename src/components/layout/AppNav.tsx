@@ -14,7 +14,7 @@ export const AppNav = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-2">
+    <nav className="flex gap-1 rounded-2xl border border-border bg-card p-1">
       {TABS.map((tab) => {
         const active = pathname === tab.href;
         return (
@@ -22,10 +22,10 @@ export const AppNav = () => {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "flex-1 rounded-xl px-4 py-3 text-center text-sm font-medium transition-colors",
+              "flex-1 rounded-xl px-4 py-2.5 text-center text-sm font-medium transition-colors",
               active
                 ? "bg-foreground text-background"
-                : "border border-border bg-card text-foreground hover:bg-muted",
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             {tab.label}

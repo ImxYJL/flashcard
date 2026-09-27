@@ -96,7 +96,7 @@ export default function ReviewPage() {
           <Badge>Box {current.box}</Badge>
         </div>
 
-        <p className="font-serif text-2xl leading-relaxed">
+        <p className="text-2xl leading-relaxed tracking-tight">
           {current.before}
           {revealed ? (
             <span className="font-semibold underline decoration-2 underline-offset-4">
