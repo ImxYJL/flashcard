@@ -7,6 +7,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-pastel-sage: var(--pastel-sage);
+  --color-pastel-blue: var(--pastel-blue);
+  --color-pastel-pink: var(--pastel-pink);
+  --color-pastel-lavender: var(--pastel-lavender);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
@@ -49,10 +55,11 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  /* 레퍼런스 무드: 크림 배경 + 웜 블랙 텍스트 */
+  --background: #f5f2ec;
+  --foreground: #1c1a17;
+  --card: #fbfaf6;
+  --card-foreground: #1c1a17;
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
@@ -81,6 +88,15 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* 카드 액센트 팔레트 (파스텔 4색) — pickCardColor가 이 중에서 고른다 */
+  --pastel-sage: #bcd7b3;
+  --pastel-blue: #b9cfe9;
+  --pastel-pink: #f3ccd7;
+  --pastel-lavender: #cec3ec;
+  /* 브랜드 포인트 (알약 배지·dot 등) */
+  --brand: #f26b21;
+  --brand-foreground: #ffffff;
 }
 
 .dark {

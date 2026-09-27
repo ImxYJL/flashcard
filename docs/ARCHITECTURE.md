@@ -43,6 +43,26 @@ create policy "owner only"
 - **서버 상태**: React Query
 - **UI 상태**: 지역 `useState` 또는 URL 쿼리 파라미터 (필터 등)
 
+## 디자인 시스템
+
+레퍼런스: "everyday conversations" 카드덱 무드 — 크림 배경 + 웜 블랙 텍스트 + 파스텔 4색 + 오렌지 포인트, 큰 라운드/넉넉한 여백. 색은 **하드코딩하지 않고 토큰 뒤로 숨겨** 리팩토링에 열어둔다.
+
+### 2층 토큰 구조 (`src/app/globals.css`)
+
+1. **전역 테마 층** (다크모드 같은 전체 커스텀) — shadcn CSS 변수(`--background`, `--foreground`, `--card` …)를 크림/웜블랙으로 재튜닝. 새 테마는 `[data-theme]`/`.dark` 블록 추가로 확장. 스위처 UI는 나중(v2), 지금은 토큰만 열어둠.
+2. **카드 액센트 팔레트 층** — `--pastel-sage/-blue/-pink/-lavender`(카드 배경 4색) + `--brand`/`--brand-foreground`(오렌지 포인트). `@theme inline`으로 `bg-pastel-*`, `bg-brand`, `text-brand-foreground` 유틸 생성.
+
+### 카드 색 선택 (`src/lib/card-color.ts`)
+
+- `CARD_COLORS` / `pickCardColor()` — **기본 전략: 볼 때마다 랜덤**. 컴포넌트(`CardSurface`)는 마운트 시 1회만 뽑아 그 화면 동안 고정(리렌더 깜빡임 방지), 카드가 다시 나타나면 새 색.
+- ⭐️ **교체 지점**: `pickCardColor` 본문만 바꾸면 "카드별 고정(id 해시)" 또는 "카테고리별" 로 전환 가능. 컴포넌트 불변.
+
+### 공통 컴포넌트
+
+- `components/ui/` — shadcn 프리미티브 (button/input/textarea/select/dialog/label)
+- `components/common/CardSurface.tsx` — 파스텔 라운드 카드 서피스 (color prop 미지정 시 랜덤)
+- `components/common/Badge.tsx` — 오렌지 알약 배지 (tags 표시용, v2)
+
 ## 폴더 구조
 
 > App Router 기준. 라우트는 `src/app/`에 두고, 그 외 코드는 `src/` 하위 폴더로 분리한다(`@/*` → `src/*` alias). 라우트 전용 컴포넌트는 해당 route 폴더에 `_components/`로 콜로케이션(Next private folder — 언더스코어 폴더는 라우팅에서 제외됨). `[v2]` 표시는 해당 기능을 붙일 때 생기는 것.
