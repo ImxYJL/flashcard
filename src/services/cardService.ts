@@ -14,6 +14,7 @@ type CardRow = {
   next_review: string;
   created_at: string;
   last_reviewed_at: string | null;
+  is_favorite: boolean;
 };
 
 const toCard = (row: CardRow): Card => ({
@@ -27,6 +28,7 @@ const toCard = (row: CardRow): Card => ({
   nextReview: row.next_review,
   createdAt: row.created_at,
   lastReviewedAt: row.last_reviewed_at,
+  isFavorite: row.is_favorite,
 });
 
 export type CreateCardReq = {
@@ -117,4 +119,19 @@ export const updateCard = async (input: UpdateCardReq): Promise<Card> => {
 export const deleteCard = async (id: string): Promise<void> => {
   const { error } = await supabase.from("cards").delete().eq("id", id);
   if (error) throw error;
+};
+
+export const setFavorite = async (
+  id: string,
+  isFavorite: boolean,
+): Promise<Card> => {
+  const { data, error } = await supabase
+    .from("cards")
+    .update({ is_favorite: isFavorite })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return toCard(data as CardRow);
 };

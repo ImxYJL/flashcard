@@ -20,4 +20,5 @@ export type Card = {
   nextReview: string; // ISO timestamptz
   createdAt: string; // ISO timestamptz
   lastReviewedAt: string | null;
+  isFavorite: boolean;
 };

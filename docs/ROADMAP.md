@@ -28,8 +28,8 @@
 
 ## v2 (후순위)
 
-- **졸업 처리** — `grade`가 box를 5에서 캡하는 것과 별개로, box5 카드 재확정 시 모달로 `status='graduated'` 처리해 복습 큐에서 제외. (v1은 status 없이 box5 카드가 35일마다 계속 순환)
-- **즐겨찾기** — `is_favorite` 토글 + 즐겨찾기만 모아보기.
+- **졸업 처리** — 자동화하지 않고 **수동 제어**한다(전체 관리에서 삭제/방치). 별도 `status`/모달 없음.
+- **즐겨찾기** ✅ — `is_favorite` 토글 + 전체 관리에서 "즐겨찾기만" 필터.
 - **태그 입력·표시 + 필터** — tags 칩 입력/표시, 그리고 tag·category·status·favorite 조합 필터(관리 화면, URL 쿼리 파라미터로 상태 관리).
 - **잔디 (스트릭 캘린더)** — review_events 테이블 도입 후 채점마다 row 기록, 날짜별 group by count(Supabase RPC/Postgres 함수 집계), GitHub 스타일 히트맵.
 

@@ -6,6 +6,7 @@ import {
   gradeCard,
   updateCard,
   deleteCard,
+  setFavorite,
   getCards,
   type CreateCardReq,
   type UpdateCardReq,
@@ -45,6 +46,15 @@ export const useDeleteCard = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteCard(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cards }),
+  });
+};
+
+export const useSetFavorite = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isFavorite }: { id: string; isFavorite: boolean }) =>
+      setFavorite(id, isFavorite),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cards }),
   });
 };
