@@ -71,10 +71,11 @@ export type Category = (typeof CATEGORIES)[number];
 1. **복습 큐 노출**: `next_review <= now` 인 카드 (`isDue`). *(v2에서 졸업 도입 시 `status = 'active'` 조건 추가)*
 2. **채점**: 클로즈 빈칸 클릭 → 정답 노출 → `'헷갈렸어요'`(`unsure`) / `'알고 있었어요'`(`know`).
 3. **박스 갱신** (`grade`):
-   - 정답(`know`): `box = min(box + 1, 5)`, `next_review = now + BOX_INTERVAL_DAYS[box]`
+   - 정답(`know`): `box = min(box + 1, 5)`, `next_review = 복습 하루 시작(새벽 2시) + BOX_INTERVAL_DAYS[box]`
    - 오답(`unsure`): `box = 1`, `next_review = now` → **같은 세션에 다시 등장**(방금 틀린 카드를 한 번 더 강화)
    - 공통: `last_reviewed_at = now`
 4. **박스별 간격(일)**: box2=3, box3=7, box4=16, box5=35. box1은 즉시 재등장이라 스케줄에 쓰이지 않는다.
+   - **하루 경계 = 새벽 2시**(`DAY_START_HOUR`, 로컬). 정답 시 다음 복습은 채점 시각이 속한 복습-하루의 새벽 2시를 기준으로 N일 뒤 새벽 2시에 due → 그날 오전에 열어도 뜬다. (새벽 2시 이전 채점은 전날 세션으로 간주)
 5. **새 카드**: `box=1`, `next_review=now` → 생성 즉시 큐에 노출.
 
 ## 불변식 (invariants)
@@ -91,5 +92,5 @@ export type Category = (typeof CATEGORIES)[number];
 - `parseSentence(raw)` → 첫 `[...]`를 찾아 `{ before, phrase, after }`로 분리. 대괄호가 없거나 표현이 비면 `null`.
 - `wrapSelectionAsPhrase(value, start, end)` → 선택 구간을 `[ ]`로 감싼 새 값 + 커서 위치 반환. 선택이 없거나 core가 비었거나 이미 대괄호가 있으면 `null`. **1문장 1표현 제약을 여기서 강제**하며, 선택 구간 앞뒤 공백은 보존하고 core에만 대괄호를 씌운다.
 - `BOX_INTERVAL_DAYS = [0, 1, 3, 7, 16, 35]` — index = box(1~5), 0번은 미사용 자리.
-- `grade(card, knew, now)` → 정답이면 box +1(최대 5) 후 `next_review = now + 간격`, 오답이면 `box=1` + `next_review = now`(같은 세션 재등장). ✅ `src/lib/leitner.ts`에 반영됨(원본 아티팩트의 "오답도 now+간격" 동작을 이 결정대로 수정 완료).
+- `grade(card, knew, now)` → 정답이면 box +1(최대 5) 후 `next_review = 복습 하루 시작(새벽 2시) + 간격`, 오답이면 `box=1` + `next_review = now`(같은 세션 재등장). ✅ `src/lib/leitner.ts`에 반영됨.
 - `isDue(card, now)` → `next_review <= now` 여부. 복습 큐 필터에 사용.
