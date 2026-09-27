@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import { grade } from "@/lib/leitner";
 import type { Card, Category } from "@/types/card";
 
 /** DB row (snake_case) → 도메인 Card (camelCase) 매핑 */
@@ -61,4 +62,29 @@ export const getCards = async (): Promise<Card[]> => {
 
   if (error) throw error;
   return (data as CardRow[]).map(toCard);
+};
+
+export const gradeCard = async (card: Card, knew: boolean): Promise<Card> => {
+  const graded = grade(
+    {
+      box: card.box,
+      nextReview: Date.parse(card.nextReview),
+      lastReviewed: card.lastReviewedAt ? Date.parse(card.lastReviewedAt) : null,
+    },
+    knew,
+  );
+
+  const { data, error } = await supabase
+    .from("cards")
+    .update({
+      box: graded.box,
+      next_review: new Date(graded.nextReview).toISOString(),
+      last_reviewed_at: new Date(graded.lastReviewed!).toISOString(),
+    })
+    .eq("id", card.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return toCard(data as CardRow);
 };
