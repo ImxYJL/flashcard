@@ -42,8 +42,12 @@ export const EditCardDialog = ({ card }: { card: Card }) => {
       setError("표현을 [ ]로 지정해 주세요.");
       return;
     }
-    await updateCard.mutateAsync({ id: card.id, ...parsed, category });
-    setOpen(false);
+    try {
+      await updateCard.mutateAsync({ id: card.id, ...parsed, category });
+      setOpen(false);
+    } catch {
+      setError("저장에 실패했어요. 네트워크를 확인해 주세요.");
+    }
   };
 
   return (

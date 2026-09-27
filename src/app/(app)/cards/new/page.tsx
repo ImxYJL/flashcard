@@ -21,9 +21,13 @@ export default function NewCardPage() {
       setError("표현을 드래그해서 지정하거나 [ ]로 감싸 주세요.");
       return;
     }
-    await createCard.mutateAsync({ ...parsed, category });
-    setText("");
-    setSaved(true);
+    try {
+      await createCard.mutateAsync({ ...parsed, category });
+      setText("");
+      setSaved(true);
+    } catch {
+      setError("저장에 실패했어요. 네트워크를 확인해 주세요.");
+    }
   };
 
   return (

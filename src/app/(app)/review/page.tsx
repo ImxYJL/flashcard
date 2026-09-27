@@ -16,6 +16,7 @@ export default function ReviewPage() {
   const [todayCount, setTodayCount] = useState(0);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // due 카드를 세션 큐로 1회 스냅샷 (채점 후 refetch로 큐가 재빌드되지 않게)
   useEffect(() => {
@@ -33,11 +34,16 @@ export default function ReviewPage() {
 
   const handleGrade = async (knew: boolean) => {
     const card = queue![index];
+    setError(null);
     setRevealed(false);
     // 오답: 같은 세션에 다시 (큐 끝에 추가)
     if (!knew) setQueue((q) => (q ? [...q, card] : q));
     setIndex((i) => i + 1);
-    await gradeCard.mutateAsync({ card, knew });
+    try {
+      await gradeCard.mutateAsync({ card, knew });
+    } catch {
+      setError("채점 저장에 실패했어요. 네트워크를 확인해 주세요.");
+    }
   };
 
   const header = (
@@ -48,6 +54,7 @@ export default function ReviewPage() {
         <b className="text-foreground">{total}</b>개 · 마스터{" "}
         <b className="text-foreground">{masterCount}</b>개
       </p>
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
     </div>
   );
 
