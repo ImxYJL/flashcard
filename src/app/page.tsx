@@ -1,26 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase/client";
+import Link from "next/link";
 import { signInWithGoogle, signOut } from "@/lib/supabase/auth";
+import { useUser } from "@/lib/supabase/useUser";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
-    });
-
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => data.subscription.unsubscribe();
-  }, []);
+  const { user, loading } = useUser();
 
   if (loading) {
     return (
@@ -31,17 +17,18 @@ export default function Home() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
+    <main className="flex flex-1 flex-col items-center justify-center gap-5 p-8">
       {user ? (
         <>
           <p className="text-lg">로그인됨: {user.email}</p>
-          <code className="rounded-lg bg-muted px-3 py-2 text-sm">{user.id}</code>
-          <p className="text-sm text-muted-foreground">
-            ↑ RLS 정책에 넣을 소유자 UID
-          </p>
-          <Button variant="outline" onClick={() => signOut()}>
-            로그아웃
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link href="/cards/new">카드 만들기</Link>
+            </Button>
+            <Button variant="outline" onClick={() => signOut()}>
+              로그아웃
+            </Button>
+          </div>
         </>
       ) : (
         <Button onClick={() => signInWithGoogle()}>Google로 로그인</Button>
