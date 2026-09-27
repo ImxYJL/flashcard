@@ -8,12 +8,11 @@
 - **TypeScript + Tailwind CSS v4** (CSS 기반 설정, `src/app/globals.css`의 `@theme`/토큰)
 - **Supabase** (`@supabase/supabase-js`) — Postgres + Auth. 전 클라이언트라 브라우저 클라이언트만 사용(localStorage 세션). SSR 붙이면 그때 `@supabase/ssr` + `proxy.ts` 도입
 - **React Query** (`@tanstack/react-query`) — 서버 상태
-- **react-hook-form** — 폼 (검증이 가벼워 zod는 안 씀; `register` + 인라인 룰)
 - **shadcn/ui** (radix-nova 스타일, radix + tailwind) — 컴포넌트를 `src/components/ui/`로 복사해 소유·restyle. `cn` 유틸(`src/lib/utils.ts`), 아이콘은 lucide
 - **Vercel** 배포
 - 레포: **public**
 
-> shadcn `Form` 래퍼(FormField/FormMessage)는 도입하지 않는다 — 검증이 가벼워 rhf `register` + shadcn 프리미티브(input/select/textarea)를 직접 쓰는 편이 단순하다. phrase 입력 필드만 커서/대괄호 조작 때문에 controlled로 다룬다.
+> 폼 라이브러리(react-hook-form)나 shadcn `Form` 래퍼는 쓰지 않는다 — 검증이 가벼워(표현 비어있음/카테고리 필수) plain `useState` + shadcn 프리미티브로 충분하다. phrase 입력 textarea는 커서/대괄호 조작 때문에 controlled로 다루며, 입력 블록은 `components/common/SentenceEditor.tsx`로 추출해 카드 추가/수정이 공유한다.
 
 ## 인증 & 접근 제어
 
@@ -67,45 +66,51 @@ create policy "owner only"
 
 ### 공통 컴포넌트
 
-- `components/ui/` — shadcn 프리미티브 (button/input/textarea/select/dialog/label)
+- `components/ui/` — shadcn 프리미티브 (button/textarea/select/dialog/input/label)
 - `components/common/CardSurface.tsx` — 파스텔 라운드 카드 서피스 (color prop 미지정 시 랜덤)
-- `components/common/Badge.tsx` — 오렌지 알약 배지 (tags 표시용, v2)
+- `components/common/Badge.tsx` — 오렌지 알약 배지 (Box 배지 등)
+- `components/common/SentenceEditor.tsx` — 문장 입력 + 드래그→대괄호 + 카테고리 칩 (추가/수정 공유)
+- `components/layout/AppNav.tsx` — 복습/문장 추가/전체 관리 탭
 
 ## 폴더 구조
 
-> App Router 기준. 라우트는 `src/app/`에 두고, 그 외 코드는 `src/` 하위 폴더로 분리한다(`@/*` → `src/*` alias). 라우트 전용 컴포넌트는 해당 route 폴더에 `_components/`로 콜로케이션(Next private folder — 언더스코어 폴더는 라우팅에서 제외됨). `[v2]` 표시는 해당 기능을 붙일 때 생기는 것.
+> App Router 기준. 라우트는 `src/app/`에 두되 **로그인 게이트만 루트(`/`)**, 나머지는 **`(app)` 라우트 그룹** 아래에서 공통 레이아웃(로그인 게이팅 + 탭 네비)을 공유한다. 그 외 코드는 `src/` 하위 폴더로 분리(`@/*` → `src/*` alias). 라우트 전용 컴포넌트는 `_components/`로 콜로케이션(Next private folder). `[v2]` 표시는 해당 기능을 붙일 때 생기는 것.
 
 ```
 src/
-├── app/                   # Next App Router: 라우트 + 레이아웃 (routing 전용)
-│   ├── layout.tsx         # 루트 레이아웃
-│   ├── page.tsx           # 홈 진입
-│   ├── globals.css        # Tailwind 진입 + 테마 토큰
-│   ├── review/page.tsx    # 복습 큐 (클로즈 + 채점)
-│   ├── cards/page.tsx     # 카드 리스트 (v1: 리스트/수정/삭제, v2: 필터)
-│   ├── favorites/page.tsx # [v2] 즐겨찾기 모아보기
-│   └── dashboard/page.tsx # [v2] 잔디 히트맵
+├── app/
+│   ├── layout.tsx              # 루트 레이아웃 (Providers 연결)
+│   ├── page.tsx                # 로그인 게이트 (로그인 시 /review로 이동)
+│   ├── providers.tsx           # React Query Provider
+│   ├── globals.css             # Tailwind 진입 + 테마/파스텔 토큰
+│   └── (app)/                  # 로그인 게이팅 + 탭 네비 공통 레이아웃 (라우트 그룹)
+│       ├── layout.tsx          # useUser 게이트 + AppNav
+│       ├── review/page.tsx     # 복습 큐
+│       ├── cards/page.tsx      # 전체 관리 (리스트/수정/삭제)
+│       ├── cards/new/page.tsx  # 문장 추가
+│       └── cards/_components/  # EditCardDialog, DeleteCardButton
 │
-├── types/                 # ⭐️ 순수 핵심 도메인 엔티티 타입
-│   ├── card.ts            # Card, Category('phrasal-verb'|'vocab'), CardStatus
-│   └── review.ts          # ReviewEvent, ReviewResult('know'|'unsure')
+├── types/
+│   └── card.ts                 # Card, Category, CATEGORIES, CATEGORY_LABELS
+│                               # [v2] review.ts (ReviewEvent 등)
+├── services/
+│   └── cardService.ts          # create/get/grade/update/deleteCard + DB↔도메인 매핑
+│                               # [v2] reviewService.ts (잔디 RPC)
+├── queries/
+│   ├── useCards.ts             # useCards/useCreateCard/useGradeCard/useUpdateCard/useDeleteCard
+│   └── queryKeys.ts            # [v2] useReviewHeatmap.ts
 │
-├── services/              # Supabase 접근 함수 + ⭐️ Req/Res 타입 같이 선언
-│   ├── cardService.ts     # (GetCardsReq/Res, GradeCardReq 등 포함)
-│   └── reviewService.ts   # review_events 기록 + 잔디 집계 RPC 호출
+├── components/
+│   ├── ui/                     # shadcn 프리미티브 (button, dialog, select, textarea, input, label)
+│   ├── common/                 # CardSurface, Badge, SentenceEditor
+│   └── layout/                 # AppNav
 │
-├── queries/               # TanStack Query 훅 모음 (컴포넌트는 Supabase 직접 호출 X)
-│   ├── useCards.ts        # useCards / useGradeCard (v2: useFavoriteCard 등)
-│   ├── useReviewHeatmap.ts  # [v2] 잔디
-│   └── queryKeys.ts       # 쿼리키 상수화
-│
-├── components/            # UI
-│   ├── ui/                # shadcn/ui 프리미티브 (button, dialog, input, select, textarea, label …)
-│   ├── common/            # 프로젝트 공통 컴포넌트
-│   └── layout/            # Header, Sidebar 등
-│
-└── lib/                   # utils.ts(cn), + sentence parsing(parseSentence/wrapSelectionAsPhrase),
-                           # leitner(grade/isDue), supabase client 등
+└── lib/
+    ├── utils.ts                # cn
+    ├── sentence.ts             # parseSentence, wrapSelectionAsPhrase
+    ├── leitner.ts              # grade, isDue, BOX_INTERVAL_DAYS
+    ├── card-color.ts           # CARD_COLORS, pickCardColor
+    └── supabase/               # client.ts, auth.ts, useUser.ts
 ```
 
 코드 컨벤션(네이밍, 타입, 훅 사용 규칙)은 [CONVENTIONS](./CONVENTIONS.md) 참고.

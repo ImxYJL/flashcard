@@ -91,6 +91,5 @@ export type Category = (typeof CATEGORIES)[number];
 - `parseSentence(raw)` → 첫 `[...]`를 찾아 `{ before, phrase, after }`로 분리. 대괄호가 없거나 표현이 비면 `null`.
 - `wrapSelectionAsPhrase(value, start, end)` → 선택 구간을 `[ ]`로 감싼 새 값 + 커서 위치 반환. 선택이 없거나 core가 비었거나 이미 대괄호가 있으면 `null`. **1문장 1표현 제약을 여기서 강제**하며, 선택 구간 앞뒤 공백은 보존하고 core에만 대괄호를 씌운다.
 - `BOX_INTERVAL_DAYS = [0, 1, 3, 7, 16, 35]` — index = box(1~5), 0번은 미사용 자리.
-- `grade(card, knew, now)` → 정답이면 box +1(최대 5) 후 `next_review = now + 간격`, 오답이면 `box=1` + `next_review = now`.
-  - ⚠️ **원본 아티팩트는 오답도 `now + 간격`으로 계산**한다. 오답을 같은 세션에 재등장시키기로 결정했으므로, 오답 분기의 `next_review`를 `now`로 바꾸는 수정이 필요하다.
+- `grade(card, knew, now)` → 정답이면 box +1(최대 5) 후 `next_review = now + 간격`, 오답이면 `box=1` + `next_review = now`(같은 세션 재등장). ✅ `src/lib/leitner.ts`에 반영됨(원본 아티팩트의 "오답도 now+간격" 동작을 이 결정대로 수정 완료).
 - `isDue(card, now)` → `next_review <= now` 여부. 복습 큐 필터에 사용.
