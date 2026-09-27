@@ -88,3 +88,33 @@ export const gradeCard = async (card: Card, knew: boolean): Promise<Card> => {
   if (error) throw error;
   return toCard(data as CardRow);
 };
+
+export type UpdateCardReq = {
+  id: string;
+  before: string;
+  phrase: string;
+  after: string;
+  category: Category;
+};
+
+export const updateCard = async (input: UpdateCardReq): Promise<Card> => {
+  const { data, error } = await supabase
+    .from("cards")
+    .update({
+      before: input.before,
+      phrase: input.phrase,
+      after: input.after,
+      category: input.category,
+    })
+    .eq("id", input.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return toCard(data as CardRow);
+};
+
+export const deleteCard = async (id: string): Promise<void> => {
+  const { error } = await supabase.from("cards").delete().eq("id", id);
+  if (error) throw error;
+};
